@@ -236,15 +236,19 @@ describe('Live News idle stop', () => {
     expect(getActiveLiveMedia('live-news')?.streamId).toBe(sky.id);
   });
 
-  it('returns to Ready without a notice when the tab is hidden while playing', () => {
+  it('keeps playing without interruption when the tab is hidden', () => {
     mount();
     playFromPlaceholder();
     setHidden(true);
 
-    expect(isPlaying()).toBe(false);
+    expect(isPlaying()).toBe(true);
     expect(notice()).toBeNull();
-    expect(content().textContent).toContain('Ready when you are');
     vi.advanceTimersByTime(2 * HOUR);
+    expect(isPlaying()).toBe(true);
+    expect(notice()).toBeNull();
+
+    setHidden(false);
+    expect(isPlaying()).toBe(true);
     expect(notice()).toBeNull();
   });
 

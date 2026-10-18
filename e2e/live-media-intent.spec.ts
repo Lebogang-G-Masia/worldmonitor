@@ -233,7 +233,7 @@ test.describe('live media intent gating', () => {
     await expect.poll(() => webcamTransportCount(page), { timeout: 30_000 }).toBe(1);
   });
 
-  test('tears down live news media on hidden tab and panel close', async ({ page }) => {
+  test('keeps live news media playing on hidden tab, tears down on panel close', async ({ page }) => {
     await installCleanLiveMediaPrefs(page);
 
     await page.goto('/dashboard?liveMediaTeardown=1', { waitUntil: 'domcontentloaded' });
@@ -247,15 +247,15 @@ test.describe('live media intent gating', () => {
       Object.defineProperty(Document.prototype, 'hidden', { configurable: true, get: () => true });
       document.dispatchEvent(new Event('visibilitychange'));
     });
-    await expect.poll(() => liveNewsTransportCount(page), { timeout: 10_000 }).toBe(0);
+    await page.waitForTimeout(1000);
+    expect(await liveNewsTransportCount(page)).toBe(1);
 
     await page.evaluate(() => {
       Object.defineProperty(Document.prototype, 'hidden', { configurable: true, get: () => false });
       document.dispatchEvent(new Event('visibilitychange'));
     });
+    expect(await liveNewsTransportCount(page)).toBe(1);
 
-    await liveNews.getByRole('button', { name: /play live feed/i }).click();
-    await expect.poll(() => liveNewsTransportCount(page), { timeout: 30_000 }).toBe(1);
     await liveNews.locator('.panel-close-btn').dispatchEvent('click');
     await expect.poll(() => liveNewsTransportCount(page), { timeout: 10_000 }).toBe(0);
   });
@@ -388,7 +388,7 @@ test.describe('live media intent gating', () => {
       Object.defineProperty(Document.prototype, 'hidden', { configurable: true, get: () => true });
       document.dispatchEvent(new Event('visibilitychange'));
     });
-    await expect.poll(() => liveNewsTransportCount(page), { timeout: 10_000 }).toBe(0);
+    expect(await liveNewsTransportCount(page)).toBe(1);
     await expect.poll(() => webcamTransportCount(page), { timeout: 10_000 }).toBe(0);
 
     await page.evaluate(() => {

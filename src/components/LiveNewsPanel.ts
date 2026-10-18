@@ -71,8 +71,7 @@ export class LiveNewsPanel extends Panel {
   private isFullscreen = false;
   private liveBtn: HTMLButtonElement | null = null;
   private readonly boundVisibilityHandler = () => {
-    if (document.hidden) stopLiveMediaPlayback('live-news', 'hidden');
-    else this.startAlwaysOnPlaybackIfVisible();
+    if (!document.hidden) this.startAlwaysOnPlaybackIfVisible();
   };
   private alwaysOn = getLiveStreamsAlwaysOn();
   private unsubscribeStreamSettings: (() => void) | null = null;
